@@ -44,13 +44,13 @@ Usage
 
 	--hostname <localhost> hostname/IP Address to test against
 	--port     <443>       port on host
+	--workers  <10>        concurrency to execute tests
 	--json                 output as JSON rather than human-readable report
 
 
 TODO
 ----
 
- - run tasks concurrently (with --worker flag)
  - include certificate peer chain information
  - add non-golang default ciphers
  - simulate handshakes of multiple platforms
@@ -70,7 +70,7 @@ License
 	    * Redistributions in binary form must reproduce the above copyright
 	      notice, this list of conditions and the following disclaimer in the
 	      documentation and/or other materials provided with the distribution.
-	    * Neither the name of the <organization> nor the
+	    * Neither the name of ssltest nor the
 	      names of its contributors may be used to endorse or promote products
 	      derived from this software without specific prior written permission.
 

@@ -5,12 +5,14 @@ import (
 	"flag"
 	"log"
 	"os"
+	"sync"
 	"time"
 )
 
 var (
 	Hostname = flag.String("hostname", "localhost", "hostname to test")
 	Port     = flag.Int("port", 443, "port to test")
+	Workers  = flag.Int("workers", 10, "concurrency to execute tests")
 	JSON     = flag.Bool("json", false, "output to JSON")
 )
 
@@ -44,11 +46,7 @@ func main() {
 	}
 
 	test.StartedAt = time.Now()
-
-	for _, task := range tasks {
-		task.Execute()
-	}
-
+	work(tasks, *Workers)
 	test.FinishedAt = time.Now()
 
 	// output format
@@ -56,5 +54,34 @@ func main() {
 		JSONOutput(test)
 	} else {
 		HumanOutput(test)
+	}
+}
+
+// execute an array of tasks
+func work(tasks []Task, workers int) {
+	tchan := make(chan Task)
+	wg := new(sync.WaitGroup)
+
+	// launch workers
+	for w := 0; w < workers; w++ {
+		wg.Add(1)
+		go worker(tchan, wg)
+	}
+
+	// add tasks to queue
+	for _, task := range tasks {
+		tchan <- task
+	}
+
+	close(tchan)
+	wg.Wait()
+}
+
+// task execution worker
+func worker(tasks chan Task, wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	for task := range tasks {
+		task.Execute()
 	}
 }
